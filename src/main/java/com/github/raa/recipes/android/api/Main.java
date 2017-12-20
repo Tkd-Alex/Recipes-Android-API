@@ -20,7 +20,7 @@ public class Main implements Study {
 	public void execute() {
 		CSVFile csv = new CSVFile("/home/alessandro/Documenti/test.csv");
 		Analyzer analyzer = new Analyzer();
-		String url = "https://github.com/ThibaudM/timelapse-sony";
+		String url = "https://github.com/clementine-player/Android-Remote";
 		new RepositoryMining()
 			.in(GitRemoteRepository.hostedOn(url)
 					.inTempDir("/tmp/repodriller")

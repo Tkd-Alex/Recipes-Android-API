@@ -47,8 +47,12 @@ public class Analyzer implements CommitVisitor {
 		for(Modification m: commit.getModifications()) {
 			CompilationUnit cu = JavaParser.parse(m.getSourceCode());
 			List<MethodCallExpr> methodCalls = Navigator.findAllNodesOfGivenClass(cu, MethodCallExpr.class);
+			List<AssignExpr> assignExpr = Navigator.findAllNodesOfGivenClass(cu,  AssignExpr.class);
+			List<FieldDeclaration> fieldDeclaration = Navigator.findAllNodesOfGivenClass(cu, FieldDeclaration.class);
+			List<Comment> comments = cu.getAllContainedComments();
 			try {
 				final TypeSolver typeSolver = JarTypeSolver.getJarTypeSolver("/home/alessandro/Android/Sdk/platforms/android-23/android.jar");
+				
 				methodCalls.forEach(em -> System.out.println(
 						"==============" + 
 						"\nCommit: " + commit.getHash() + 
@@ -59,8 +63,22 @@ public class Analyzer implements CommitVisitor {
 						"\nSolver: " +
 						JavaParserFacade.get(typeSolver).solve(em).getCorrespondingDeclaration().getQualifiedSignature()
 						));
+				
+				assignExpr.forEach(as ->  System.out.println(
+						"**************" + 
+						"\nAssegnazione: " + as.toString() + 
+						"\nSolver: " + JavaParserFacade.get(typeSolver).getType(as).describe() +
+						"\nSolver: " + JavaParserFacade.get(typeSolver).getType(as)
+						));
+				
+				fieldDeclaration.forEach(dec -> System.out.println(
+						"++++++++++++" +
+						"\nDeclaration: " + dec.toString() +
+						"\nVariabile:" + dec.getVariables()
+						));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				System.out.println("Eccezione generata: " + e);
 				e.printStackTrace();
 			}
 			
@@ -68,63 +86,20 @@ public class Analyzer implements CommitVisitor {
 			//showReferenceTypeDeclaration(typeSolver.solveType("java.lang.String"));
 			//showReferenceTypeDeclaration(typeSolver.solveType("java.util.List"));
 			
-			/*
-			List<AssignExpr> assignExpr = Navigator.findAllNodesOfGivenClass(cu,  AssignExpr.class);
-			assignExpr.forEach(assign ->  System.out.println(
-					"**************" + 
-					"\nAssegnazione: " + assign.toString()
-					));
-			
-			List<MethodCallExpr> methodCalls = Navigator.findAllNodesOfGivenClass(cu, MethodCallExpr.class);
-			methodCalls.forEach(em -> System.out.println(
-					"==============" + 
-					"\nName method: " + em.getName() + 
-					"\nArguments: " + em.getArguments()
-					));
-			
-			List<FieldDeclaration> fieldDeclaration = Navigator.findAllNodesOfGivenClass(cu, FieldDeclaration.class);
-			fieldDeclaration.forEach(dec ->
-						System.out.println(
-								"\n++++++++++++\n" +
-								dec.toString()	
-						)
-					);
-			*/
 			//Optional<ClassOrInterfaceDeclaration> classStore = cu.getClassByName("AppStoreApp");
-			//VoidVisitor<?> methodNameVisitor = new MethodNamePrinter();
-			//methodNameVisitor.visit(cu,  null);
-			//if(classStore.isPresent()) { 
-				/*
-				 * List<MethodCallExpr> methodCalls = Navigator.findAllNodesOfGivenClass(cu,MethodCallExpr.class);
-				methodCalls.forEach(em -> System.out.println(
-						"==============" + 
-						"\nName method: " + em.getName() + 
-						"\nArguments: " + em.getArguments()
-						));
-				*/
-				//System.out.println("Nome della classe: \n" + classStore.toString());
-				//List<MethodDeclaration> methods = classStore.get().getMethods();
-				/*for(Node node : classStore.get().getChildNodes()) {
-					System.out.println("============");
-					
-				}
-				*/
-				/*
-				for(MethodDeclaration md : methods) {
-					//if(md.getNameAsString() == "clearCache") {
-						System.out.println("=============");
-						//System.out.println("Commit hash: " + commit.getHash());
-						//System.out.println("[" + md.getBegin().get().line + "] \n" + md);
-						System.out.println("Name as string: " + md.getNameAsString());
-						System.out.println("Declaration: " + md.getDeclarationAsString());
-						System.out.println("Params: " + md.getParameters());
-						System.out.println("Body: " + md.getBody());
-						
-					//}
+			//List<MethodDeclaration> methods = classStore.get().getMethods();
+			/*
+			for(MethodDeclaration md : methods) {
+					System.out.println("=============");
+					System.out.println("Commit hash: " + commit.getHash());
+					System.out.println("[" + md.getBegin().get().line + "] \n" + md);
+					System.out.println("Name as string: " + md.getNameAsString());
+					System.out.println("Declaration: " + md.getDeclarationAsString());
+					System.out.println("Params: " + md.getParameters());
+					System.out.println("Body: " + md.getBody());
 				}
 			}
 			/*
-			List<Comment> comments = cu.getAllContainedComments();
 			for(Comment c: comments) {
 				writer.write(
 						commit.getHash(), 
